@@ -1,23 +1,31 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { router, usePage } from '@inertiajs/react';
+import { router } from '@inertiajs/react';
 
-const Dashboard = ({ user, product }) => {
+const Dashboard = ({ user }) => {
   const [products, setProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [newProduct, setNewProduct] = useState({ name: '', description: '', price: '', quantity: '', isActive: true });
   const [editProduct, setEditProduct] = useState({ id: null, name: '', description: '', price: '', quantity: '', isActive: true });
   const [error, setError] = useState('');
-  const [showAddProductForm, setShowAddProductForm] = useState(false); // Controle para mostrar/ocultar o formulário de adicionar produto
-  const [showEditProductForm, setShowEditProductForm] = useState(false); // Controle para mostrar/ocultar o formulário de editar produto
+  const [showAddProductForm, setShowAddProductForm] = useState(false);
+  const [showEditProductForm, setShowEditProductForm] = useState(false);
 
-  const addProductFormRef = useRef(null);  // Ref para o formulário de adicionar produto
-  const editProductFormRef = useRef(null); // Ref para o formulário de editar produto
+  const addProductFormRef = useRef(null);
+  const editProductFormRef = useRef(null);
 
+  // Carrega os produtos ao montar o componente
   useEffect(() => {
-    setProducts(product);
-  }, [product]);
-
+    axios.get('/api/v1/products')
+      .then(response => {
+        console.log(response)
+        setProducts(response.data.products); // Carrega os produtos da resposta
+      })
+      .catch(error => {
+        setError('Erro ao carregar os produtos');
+        console.error(error);
+      });
+  }, []); // O array vazio faz a requisição apenas na montagem do componente
   const handleSearch = (e) => {
     setSearchQuery(e.target.value);
   };
@@ -31,13 +39,13 @@ const Dashboard = ({ user, product }) => {
 
     axios.post('/api/v1/products', newProduct)
       .then(response => {
-        console.log(response.data);
         setProducts([...products, response.data.product]);
         setNewProduct({ name: '', description: '', price: '', quantity: '', isActive: true });
         setShowAddProductForm(false); // Esconde o formulário após adicionar
       })
       .catch(error => {
         setError('Erro ao adicionar produto');
+        console.error(error);
       });
   };
 
@@ -55,12 +63,15 @@ const Dashboard = ({ user, product }) => {
 
     axios.put(`/api/v1/products/${editProduct.id}`, editProduct)
       .then(response => {
+        console.log(response.data)
+        console.log(editProduct)
         setProducts(products.map(product => product.id === editProduct.id ? response.data : product));
         setEditProduct({ id: null, name: '', description: '', price: '', quantity: '', isActive: true });
         setShowEditProductForm(false); // Esconde o formulário após editar
       })
       .catch(error => {
         setError('Erro ao atualizar produto');
+        console.error(error);
       });
   };
 
@@ -71,6 +82,7 @@ const Dashboard = ({ user, product }) => {
       })
       .catch(error => {
         setError('Erro ao excluir produto');
+        console.error(error);
       });
   };
 
@@ -82,31 +94,9 @@ const Dashboard = ({ user, product }) => {
       })
       .catch(error => {
         setError('Erro ao alterar estado do produto');
+        console.error(error);
       });
   };
-
-  // Fechar formulário quando clicar fora da área do formulário
-  const handleClickOutside = (event, formRef, setFormVisibility) => {
-    if (formRef.current && !formRef.current.contains(event.target)) {
-      setFormVisibility(false);
-    }
-  };
-
-  useEffect(() => {
-    if (showAddProductForm || showEditProductForm) {
-      const handleOutsideClick = (e) => {
-        if (showAddProductForm) {
-          handleClickOutside(e, addProductFormRef, setShowAddProductForm);
-        }
-        if (showEditProductForm) {
-          handleClickOutside(e, editProductFormRef, setShowEditProductForm);
-        }
-      };
-
-      document.addEventListener('mousedown', handleOutsideClick);
-      return () => document.removeEventListener('mousedown', handleOutsideClick);
-    }
-  }, [showAddProductForm, showEditProductForm]);
 
   return (
     <div className='w-full h-screen bg-gray-100'>
@@ -176,12 +166,12 @@ const Dashboard = ({ user, product }) => {
                       Deletar
                     </button>
                     <button
-                      onClick={() => handleToggleActive(product.id)}
-                      className={`text-white ${product.active
-                        ? 'bg-yellow-500' : 'bg-green-500'} px-3 py-1 rounded-full`}
+                      onClick={() => router.visit(`/product-details/${product.id}`)}  // Usando Inertia para navegar
+                      className='text-green-500'
                     >
-                      {product.active ? 'Desativar' : 'Ativar'}
+                      Detalhes
                     </button>
+
                   </td>
                 </tr>
               ))}
@@ -265,7 +255,6 @@ const Dashboard = ({ user, product }) => {
             </div>
           </div>
         )}
-
         {showEditProductForm && (
           <div className='fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center'>
             <div ref={editProductFormRef} className='bg-white p-6 rounded-lg shadow-lg max-w-lg w-full'>

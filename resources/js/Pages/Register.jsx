@@ -101,7 +101,7 @@ const Register = () => {
             required
           />
         </div>
-
+    <a href='/'>Login</a>
         {/* Botão de Envio */}
         <div className='flex justify-center'>
           <button
