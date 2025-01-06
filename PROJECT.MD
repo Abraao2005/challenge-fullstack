@@ -110,13 +110,13 @@ Esta documentação contém as informações necessárias para a execução do p
 1. **Clone o repositório:**
    - Use o comando abaixo para clonar o repositório no seu ambiente local:
      ```bash
-     git clone <URL_DO_REPOSITORIO>
+     git clone https://github.com/Abraao2005/challenge-fullstack/
      ```
 
 2. **Acesse o diretório do projeto:**
    - Navegue até o diretório do projeto clonado:
      ```bash
-     cd <DIRETORIO_DO_PROJETO>
+     cd challange-fullstack
      ```
 
 3. **Instale as dependências do backend:**
