@@ -7,9 +7,9 @@ use Illuminate\Support\Facades\Route;
 Route::post('v1/register', [UserController::class, "register"]);
 Route::post('v1/login', [UserController::class, "login"]);
 
-Route::post('v1/products', [ProductController::class, 'store']);
+Route::get('v1/products', [ProductController::class, 'list']);
 
-Route::get('v1/products/{id}/edit', [ProductController::class, 'edit']);
+Route::post('v1/products', [ProductController::class, 'store']);
 
 Route::put('v1/products/{id}', [ProductController::class, 'update']);
 
